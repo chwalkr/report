@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20141222" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="下单开始日期"/>
+<O t="Date">
+<![CDATA[1441036800000]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="下单结束日期"/>
+<O t="Date">
+<![CDATA[1446048000000]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[FRDemo]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT sto.orderCD,sto.bookingSource,sto.bookingChannel,sto.partnerKey,sto.utmMedium,sto.utmSource,sto.utmTerm,sto.refferUrl,sto.refererHost,sto.edm,
+sto.refererTime,sto.utmTime,sto.clientIp,sto.ipLocation,sto.testOrder,sto.principalNo,sto.subSource,sto.userFeedback,sto.regularCustomer,sto.visaRegularCustomer,sto.createtime,
+
+sto.payTime as 'lastCallBackTime',sto.tradePlatform as 'paymentChannel',sto.tradeStatus,
+
+sto.orderItemCD,b.paidcurrency,b.paidamount,
+b.referenceCNYPaidPrice,
+st.currency as '结算币种',
+st.totalPrice as '结算金额',
+ratetb.exchangeRate as '汇率',
+Round(IF(st.currency!='CNY',st.totalPrice *ratetb.exchangeRate,st.totalPrice),2) AS '结算金额CNY',
+sto.paymentstatus,sto.orderstatus,sto.country,b.continent,sto.producttitlecn ,
+sto.productBusinessId ,sto.orderItemType,sto.finishedDealDate,
+
+sto.departureDate,sto.contactInfo,sto.phone,sto.email,sto.endDate,sto.totalGuest,sto.adultCount,sto.childrenCount,sto.babyCount,sto.supplierCode,sto.supplierConfirmCode,sto.supplierConfirmCodeEx1,sto.supplierCurrency,sto.supplierTotalPrice,sto.couponCodes,
+sto.resultBookingPlatform,sto.resultBookingChannelType,sto.resultBookingSource,sto.isInternalBooking,sto.userId,sto.searchKeyword,sto.projectCodes,ref.currency ,ref.amount,(select name from statistics.t_report_dict where code = ref.paymentChannel) as '退款平台',st.settlementPeriod,
+
+#hinfo.hotelStar,hinfo.cityName,
+h.hotelCode,h.inDate,h.outDate,st.taskResult,b.cancelReason,h.supplierCode as '供应商编号',
+(SELECT group_concat(rp.roomName) FROM t_or_hotelitem_roomplan rp WHERE rp.hotelOrderId = h.hotelOrderId) as roomPlanName,
+(SELECT count(*) FROM t_or_hotelitem_roomplan rp WHERE rp.hotelOrderId = h.hotelOrderId) as roomCount,
+(SELECT count(*) * datediff(h.outDate,h.inDate) FROM t_or_hotelitem_roomplan rp WHERE rp.hotelOrderId = h.hotelOrderId) as roomNightCount,
+(SELECT hc.birthDate  FROM t_or_hotelitem_customer hc WHERE hc.hotelOrderId = h.hotelOrderId and hc.personType='KD' order by hc.birthDate asc limit 1) as '最大儿童生日',
+(SELECT hc.birthDate  FROM t_or_hotelitem_customer hc WHERE hc.hotelOrderId = h.hotelOrderId and hc.personType='KD' order by hc.birthDate desc limit 1) as '最小儿童生日',
+ (select case when sr.result='REJUCT' THEN '人工补单' ELSE '自然下单' END from t_or_supply_response sr where sr.taskId=st.taskId and sr.supplyTaskType='SUPPLY' order by responseId desc limit 1 )  as '下单方式',
+ o.relativeOrderCD,o.relativeOrderForInner
+FROM	dmp_report.t_stats_topic_order sto
+left join t_or_order o on o.orderCD = sto.orderCD 
+left join t_or_baseitem b on sto.orderItemCD = b.orderItemCD
+left JOIN t_or_hotelitem h ON b.orderItemCD = h.orderItemCD
+#left JOIN hotel.t_htl_hotelinfo hinfo ON hinfo.hotelCode = h.hotelCode
+left JOIN t_or_supply_task st ON b.orderItemCD = st.orderItemCD
+left JOIN (select sum(amount) as amount,orderCD,currency,paymentChannel from t_or_refund_order where refundOrderStatus = 'CONFIRMED' group by orderCD) ref on ref.orderCD = sto.orderCD 
+left JOIN (select * from statistics.t_sta_rate srate where srate.toCurrency = 'CNY') ratetb ON ratetb.fromCurrency = st.currency 
+
+
+and ratetb.rateDate = date(sto.createtime)
+where 1=1 and sto.testOrder =0  and sto.orderItemType='HOTEL' and sto.paymentstatus = 'SUCCESS' /*and sto.orderCD = '150801107501621'*/ /* and (sto.orderstatus = 'FINISHED' OR sto.orderstatus = 'CONFIRMED' or sto.refundstatus = 'SUCCESS')*/
+
+${if(AND(len(下单开始日期) == 0,len(下单结束日期) == 0),"and b.createtime > DATE_SUB(NOW(),INTERVAL 140 DAY)","and b.createtime >= STR_TO_DATE('" + 下单开始日期 + "','%Y-%m-%d') and b.createtime <= STR_TO_DATE('" + 下单结束日期 + "','%Y-%m-%d')")} 
+]]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1638300,1600200,723900,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,4724400,4991100,2743200,2743200,5867400,2743200,2743200,2743200,2743200,4991100,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" s="0">
+<O>
+<![CDATA[预订渠道]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0" s="0">
+<O>
+<![CDATA[订单号/项单号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="0" s="0">
+<O>
+<![CDATA[订单交易日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="0" s="0">
+<O>
+<![CDATA[产品类型]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="0" s="0">
+<O>
+<![CDATA[国家]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="0" s="0">
+<O>
+<![CDATA[产品名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="0" s="0">
+<O>
+<![CDATA[出发日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="0" s="0">
+<O>
+<![CDATA[完成日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="0" s="0">
+<O>
+<![CDATA[ 支付币种 ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="0" s="0">
+<O>
+<![CDATA[ 支付金额 ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="0" s="0">
+<O>
+<![CDATA[退款平台]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="0" s="0">
+<O>
+<![CDATA[ 退款币种 ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="0" s="0">
+<O>
+<![CDATA[ 退款金额 ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="0" s="0">
+<O>
+<![CDATA[供应商]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="0" s="0">
+<O>
+<![CDATA[供应币种]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="0" s="0">
+<O>
+<![CDATA[ 供应金额 ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="0" s="0">
+<O>
+<![CDATA[结算方式]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="0" s="0">
+<O>
+<![CDATA[预计付款月份]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="0">
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B2" upParentDefault="false"/>
+</C>
+<C c="1" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="orderItemCD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="createtime"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" upParentDefault="false"/>
+</C>
+<C c="3" r="1" s="0">
+<O>
+<![CDATA[酒店]]></O>
+<PrivilegeControl/>
+<Expand upParentDefault="false"/>
+</C>
+<C c="4" r="1" s="1">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="country"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="usa" value="美国"/>
+<Dict key="france" value="法国"/>
+<Dict key="japan" value="日本"/>
+<Dict key="australia" value="澳大利亚"/>
+<Dict key="united_kindom" value="英国"/>
+<Dict key="spain" value="西班牙"/>
+<Dict key="germany" value="德国"/>
+<Dict key="canada" value="加拿大"/>
+<Dict key="china" value="中国"/>
+<Dict key="new_zealand" value="新西兰"/>
+<Dict key="italy" value="意大利"/>
+<Dict key="finland" value="芬兰"/>
+<Dict key="austria" value="奥地利"/>
+<Dict key="indonesia" value="印尼"/>
+<Dict key="thailand" value="泰国"/>
+<Dict key="switzerland" value="瑞士"/>
+<Dict key="singapore" value="新加坡"/>
+<Dict key="portugal" value="葡萄牙"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand upParentDefault="false"/>
+</C>
+<C c="5" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="producttitlecn"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" upParentDefault="false"/>
+</C>
+<C c="6" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="inDate"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" upParentDefault="false"/>
+</C>
+<C c="7" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="outDate"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" upParentDefault="false"/>
+</C>
+<C c="8" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="paidcurrency"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="CNY" value="人民币"/>
+<Dict key="AUD" value="澳元"/>
+<Dict key="CAD" value="加元"/>
+<Dict key="USD" value="美元"/>
+<Dict key="CHF" value="瑞士法郎"/>
+<Dict key="EUR" value="欧元"/>
+<Dict key="GBP" value="英镑"/>
+<Dict key="HKD" value="港元"/>
+<Dict key="JPY" value="日元"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" upParentDefault="false"/>
+</C>
+<C c="9" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="paidamount"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand upParentDefault="false"/>
+</C>
+<C c="10" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="退款平台"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" upParentDefault="false"/>
+</C>
+<C c="11" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="currency"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="CNY" value="人民币"/>
+<Dict key="AUD" value="澳元"/>
+<Dict key="CAD" value="加元"/>
+<Dict key="USD" value="美元"/>
+<Dict key="CHF" value="瑞士法郎"/>
+<Dict key="EUR" value="欧元"/>
+<Dict key="GBP" value="英镑"/>
+<Dict key="HKD" value="港元"/>
+<Dict key="JPY" value="日元"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="B2" upParentDefault="false"/>
+</C>
+<C c="12" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="amount"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="L2" upParentDefault="false"/>
+</C>
+<C c="13" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="供应商编号"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B2" upParentDefault="false"/>
+</C>
+<C c="14" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="结算币种"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="USD" value="美元"/>
+<Dict key="CNY" value="人民币"/>
+<Dict key="AUD" value="澳元"/>
+<Dict key="CAD" value="加元"/>
+<Dict key="CHF" value="瑞士法郎"/>
+<Dict key="EUR" value="欧元"/>
+<Dict key="GBP" value="英镑"/>
+<Dict key="HKD" value="港元"/>
+<Dict key="JPY" value="日元"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="B2" upParentDefault="false"/>
+</C>
+<C c="15" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="结算金额"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B2" upParentDefault="false"/>
+</C>
+<C c="16" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="settlementPeriod"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="MONTHLY" value="月结"/>
+<Dict key="AHEAD" value="预付"/>
+<Dict key="SINGLE" value="单算"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="B2" upParentDefault="false"/>
+</C>
+<C c="17" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="inDate"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[MONTHDELTA($$$,1)]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B2" upParentDefault="false"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting>
+<PaperSize width="64800000" height="43488000"/>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="1" left="1" bottom="1" right="1"/>
+<Border>
+<border style="0" color="-723724" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1118482"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label下单结束日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[下单结束日期:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="264" y="29" width="101" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="下单结束日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="365" y="29" width="101" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="Search"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+</InnerWidget>
+<BoundsAttr x="492" y="29" width="101" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label下单开始日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[下单开始日期:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="45" y="29" width="101" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="下单开始日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=MONTHDELTA(now(),-1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="146" y="29" width="101" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<Display display="true"/>
+<DelayDisplayContent delay="true"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<MobileWidgetList>
+<Widget widgetName="下单开始日期"/>
+<Widget widgetName="下单结束日期"/>
+</MobileWidgetList>
+<WidgetNameTagMap>
+<NameTag name="下单开始日期" tag="下单开始日期:"/>
+<NameTag name="下单结束日期" tag="下单结束日期:"/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="960" height="80"/>
+</ParameterUI>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.TextFormat"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="java.text.SimpleDateFormat">
+<![CDATA[yyyy-MM]]></Format>
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+</WorkBook>

@@ -1,0 +1,727 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20140501" releaseVersion="7.1.0">
+<TableDataMap>
+<TableData name="first_americ_visa_uid" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="startDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="endDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[FRDemo]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[##成功消费美国签证，会员
+SELECT 
+COUNT(DISTINCT o.uid)
+FROM 
+t_or_order o 
+LEFT JOIN t_or_baseitem b 
+ON o.orderId=b.orderId
+WHERE o.uid IS NOT NULL
+AND b.orderStatus <>'CANCELLED'  ##非撤销
+AND b.paymentStatus='SUCCESS'  ##支付成功
+AND b.country='usa'		##美国
+AND b.orderItemType='VISA'   ##签证
+##订单起始时间，与结束时间
+${IF(len(startDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+${IF(len(endDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}]]></Query>
+</TableData>
+<TableData name="first_americ_visa_order" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="startDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="endDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[FRDemo]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[##成功消费美国签证，订单总数与订单金额
+SELECT 
+COUNT(b.orderItemCD) sumOrderNum,
+SUM(b.referenceCNYPaidPrice) totalAmount
+FROM 
+t_or_order o 
+LEFT JOIN t_or_baseitem b 
+ON o.orderId=b.orderId
+WHERE o.uid IS NOT NULL
+AND b.orderStatus <>'CANCELLED'  ##非撤销
+AND b.paymentStatus='SUCCESS'  ##支付成功
+AND b.country='usa'		##美国
+AND b.orderItemType='VISA'   ##签证
+##订单起始时间，与结束时间
+${IF(len(startDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+${IF(len(endDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}]]></Query>
+</TableData>
+<TableData name="second_not_americ_visa_uid" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="startDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="endDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[FRDemo]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[##二次消费非美签旅游产品，会员总数
+SELECT COUNT(*) FROM
+t_or_order oo 
+left join t_or_baseitem bb
+on oo.orderId=bb.orderId
+left join 
+(
+	SELECT 
+	o.uid
+	FROM 
+	t_or_order o 
+	LEFT JOIN t_or_baseitem b 
+	ON o.orderId=b.orderId
+	WHERE o.uid IS NOT NULL
+	AND b.orderStatus <>'CANCELLED'##订单状态（非撤销）
+	AND b.paymentStatus='SUCCESS'##支付成功
+	AND b.country='usa' ##美国
+	AND b.orderItemType='VISA'
+	${IF(len(startDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+	${IF(len(endDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}
+	GROUP BY o.uid
+	HAVING COUNT(*)>1
+) uu
+on uu.uid=oo.uid
+where (bb.orderItemType<>'VISA' and bb.country<>'usa') ##不是美国签证
+${IF(len(startDate)==0,"","and DATE_FORMAT(oo.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+${IF(len(endDate)==0,"","and DATE_FORMAT(oo.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}
+AND bb.orderStatus <>'CANCELLED'##订单状态（非撤销）
+AND bb.paymentStatus='SUCCESS'##支付成功]]></Query>
+</TableData>
+<TableData name="second_not_americ_visa_order" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="startDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="endDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[FRDemo]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[##二次消费非美签旅游产品，订单总数
+SELECT 
+COUNT(bb.orderItemCD) sumOrderNum,
+SUM(bb.referenceCNYPaidPrice) totalAmount
+FROM 
+t_or_order oo 
+LEFT JOIN t_or_baseitem bb 
+ON oo.orderId=bb.orderId
+LEFT JOIN (
+	SELECT 
+	o.uid
+	FROM 
+	t_or_order o 
+	LEFT JOIN t_or_baseitem b 
+	ON o.orderId=b.orderId
+	WHERE o.uid IS NOT NULL
+	AND b.orderStatus <>'CANCELLED'##订单状态（非撤销）
+	AND b.paymentStatus='SUCCESS'##支付成功
+	AND b.country='usa' ##美国
+	AND b.orderItemType='VISA'
+	${IF(len(startDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+	${IF(len(endDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}
+	GROUP BY o.uid
+	HAVING COUNT(*)>1
+
+) cc
+ON cc.uid=oo.uid
+WHERE cc.uid IS NOT NULL
+AND (bb.country<>'usa' and bb.orderItemType<>'VISA')  ##不是美国签证
+${IF(len(startDate)==0,"","and DATE_FORMAT(oo.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+${IF(len(endDate)==0,"","and DATE_FORMAT(oo.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}
+AND oo.uid IS NOT NULL
+AND bb.orderStatus <>'CANCELLED'  ##非撤销
+AND bb.paymentStatus='SUCCESS'  ##支付成功
+]]></Query>
+</TableData>
+<TableData name="second_not_visa_uid" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="startDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="endDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[FRDemo]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[##二次消费非签证旅游产品，会员总数
+SELECT COUNT(*) FROM
+t_or_order oo 
+left join t_or_baseitem bb
+on oo.orderId=bb.orderId
+left join 
+(
+	SELECT 
+	o.uid
+	FROM 
+	t_or_order o 
+	LEFT JOIN t_or_baseitem b 
+	ON o.orderId=b.orderId
+	WHERE o.uid IS NOT NULL
+	AND b.orderStatus <>'CANCELLED'##订单状态（非撤销）
+	AND b.paymentStatus='SUCCESS'##支付成功
+	AND b.country='usa' ##美国
+	AND b.orderItemType='VISA'
+	${IF(len(startDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+	${IF(len(endDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}
+	GROUP BY o.uid
+	HAVING COUNT(*)>1
+) uu
+on uu.uid=oo.uid
+where bb.orderStatus <>'CANCELLED'##订单状态（非撤销）
+AND bb.paymentStatus='SUCCESS'##支付成功
+AND bb.orderItemType<>'VISA'
+${IF(len(startDate)==0,"","and DATE_FORMAT(oo.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+${IF(len(endDate)==0,"","and DATE_FORMAT(oo.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}]]></Query>
+</TableData>
+<TableData name="second_not_visa_order" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="startDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="endDate"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[FRDemo]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[##二次消费非签证旅游产品，订单总数
+SELECT 
+COUNT(bb.orderItemCD) sumOrderNum,
+SUM(bb.referenceCNYPaidPrice) totalAmount
+FROM 
+t_or_order oo 
+LEFT JOIN t_or_baseitem bb 
+ON oo.orderId=bb.orderId
+LEFT JOIN (
+	SELECT 
+	o.uid
+	FROM 
+	t_or_order o 
+	LEFT JOIN t_or_baseitem b 
+	ON o.orderId=b.orderId
+	WHERE o.uid IS NOT NULL
+	AND b.orderStatus <>'CANCELLED'##订单状态（非撤销）
+	AND b.paymentStatus='SUCCESS'##支付成功
+	AND b.country='usa' ##美国
+	AND b.orderItemType='VISA'
+	${IF(len(startDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+	${IF(len(endDate)==0,"","and DATE_FORMAT(o.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}
+	GROUP BY o.uid
+	HAVING COUNT(*)>1
+
+) cc
+ON cc.uid=oo.uid
+WHERE cc.uid IS NOT NULL
+AND bb.orderItemType<>'VISA'
+${IF(len(startDate)==0,"","and DATE_FORMAT(oo.createTime,'%Y%m%d')>=DATE_FORMAT('"+startDate+"','%Y%m%d')")}
+${IF(len(endDate)==0,"","and DATE_FORMAT(oo.createTime,'%Y%m%d')<=DATE_FORMAT('"+endDate+"','%Y%m%d')")}
+AND oo.uid IS NOT NULL
+AND bb.orderStatus <>'CANCELLED'  ##非撤销
+AND bb.paymentStatus='SUCCESS'  ##支付成功
+]]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1866900,1638300,1524000,1028700,1676400,1905000,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[6438900,4953000,4343400,5753100,6019800,5676900,3771900,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" cs="7" s="0">
+<O>
+<![CDATA[美签客户转其它业务预订的比例]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="1">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="1">
+<O>
+<![CDATA[会员数 ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="1">
+<O>
+<![CDATA[成交订单数 ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="1">
+<O>
+<![CDATA[成交金额（元）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="1">
+<O>
+<![CDATA[平均订单金额（元）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" cs="2" s="1">
+<O>
+<![CDATA[转化率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="1">
+<O>
+<![CDATA[成功消费美国签证]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="first_americ_visa_uid" columnName="COUNT(DISTINCT o.uid)"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="first_americ_visa_order" columnName="sumOrderNum"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="first_americ_visa_order" columnName="totalAmount"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D3/C3]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" s="1">
+<O>
+<![CDATA[会员重复消费比例 ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="2" s="1">
+<O>
+<![CDATA[订单转化率]]></O>
+<PrivilegeControl/>
+</C>
+<C c="0" r="3" s="3">
+<O>
+<![CDATA[其中：]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="3" s="5">
+<PrivilegeControl/>
+</C>
+<C c="0" r="4" s="1">
+<O>
+<![CDATA[二次消费非美签旅游产品]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="4" s="1">
+<O t="DSColumn">
+<Attributes dsName="second_not_americ_visa_uid" columnName="COUNT(*)"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="4" s="1">
+<O t="DSColumn">
+<Attributes dsName="second_not_americ_visa_order" columnName="sumOrderNum"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="4" s="1">
+<O t="DSColumn">
+<Attributes dsName="second_not_americ_visa_order" columnName="totalAmount"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="4" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D5/C5]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="4" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B5/B3]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="4" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C5/C3]]></Attributes>
+</O>
+<PrivilegeControl/>
+</C>
+<C c="0" r="5" s="1">
+<O>
+<![CDATA[二次消费非签证旅游产品]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="5" s="1">
+<O t="DSColumn">
+<Attributes dsName="second_not_visa_uid" columnName="COUNT(*)"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="5" s="1">
+<O t="DSColumn">
+<Attributes dsName="second_not_visa_order" columnName="sumOrderNum"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="5" s="1">
+<O t="DSColumn">
+<Attributes dsName="second_not_visa_order" columnName="totalAmount"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="5" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D6/C6]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="5" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B6/B3]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="5" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C6/C3]]></Attributes>
+</O>
+<PrivilegeControl/>
+</C>
+<C c="2" r="8">
+<O>
+<![CDATA[]]></O>
+<PrivilegeControl/>
+</C>
+<C c="4" r="12">
+<O>
+<![CDATA[]]></O>
+<PrivilegeControl/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting>
+<PaperSize width="144000000" height="42768000"/>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+</ReportSettings>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Layout class="com.fr.form.ui.container.WAbsoluteLayout">
+<WidgetName name="para"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="Search"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+</InnerWidget>
+<BoundsAttr x="794" y="95" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label下单时间"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<widgetValue>
+<O>
+<![CDATA[下单时间:]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="261" y="95" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="startDate"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=dateinmonth(today(),1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="341" y="95" width="141" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label至"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<widgetValue>
+<O>
+<![CDATA[至]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="490" y="95" width="22" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="endDate"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=dateinmonth(today(),-1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="522" y="94" width="138" height="21"/>
+</Widget>
+<LCAttr vgap="0" hgap="0"/>
+</Layout>
+<DesignAttr width="1000" height="237"/>
+</ParameterUI>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="1" size="120"/>
+<Background name="ColorBackground" color="-13382452"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00%]]></Format>
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="HBA"/>
+<PreviewType PreviewType="0"/>
+</WorkBook>

@@ -1,0 +1,2593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20141222" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="orderitemUnion" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="下单开始日期"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="名"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="出行结束日期"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="订单来源"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="订单状态"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="付款状态"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="供应商产品编号"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="订单号"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="国家"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="下单结束日期"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="订单项号"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="联系人邮箱"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="支付时间开始"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="产品编号"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="支付时间结束"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="出行开始日期"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="订单类型"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="姓"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="联系人手机"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="洲"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[FRDemo]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select sto.orderCD,sto.bookingSource,sto.bookingChannel,sto.partnerKey,sto.utmMedium,sto.utmSource,sto.utmTerm,sto.refferUrl,sto.refererHost,sto.edm,
+sto.refererTime,sto.utmTime,sto.clientIp,sto.ipLocation,sto.testOrder,sto.principalNo,sto.subSource,sto.userFeedback,sto.regularCustomer,sto.visaRegularCustomer,sto.createtime,
+
+sto.payTime as 'lastCallBackTime',sto.tradePlatform as 'paymentChannel',sto.tradeStatus,
+sto.orderItemCD,IF(b.paidcurrency='USD',b.paidamount,0) 'usdAmount' ,
+IF(b.paidcurrency='CNY',b.paidamount,0) 'cnyAmount' ,
+b.referenceCNYPaidPrice,
+sto.paidCurrency,sto.paidAmount,sto.paymentstatus,sto.orderstatus,sto.country,b.continent,sto.producttitlecn ,
+sto.productBusinessId ,sto.orderItemType,sto.finishedDealDate,
+
+sto.departureDate,sto.contactInfo,sto.phone,sto.email,sto.endDate,sto.totalGuest,sto.adultCount,sto.childrenCount,sto.babyCount,sto.supplierCode,sto.supplierConfirmCode,sto.supplierConfirmCodeEx1,sto.supplierCurrency,sto.supplierTotalPrice,sto.couponCodes,sto.visaSignTo,
+sto.resultBookingPlatform,sto.resultBookingChannelType,sto.resultBookingSource,sto.isInternalBooking,sto.userId,sto.searchKeyword,sto.projectCodes,
+CASE WHEN sto.orderItemType = 'CAR' THEN
+	(select GROUP_CONCAT(DISTINCT tcd.driverSurname, ' ', tcd.driverFirstName, '|', IFNULL(tcd.driverCellphone, '') SEPARATOR '\n') from t_or_caritem as tc join t_or_caritem_driverInfo as tcd on tc.carOrderId=tcd.carOrderId where tc.orderItemCD = sto.orderItemCD)
+WHEN sto.orderItemType='INSURANCE' THEN
+	(select GROUP_CONCAT(DISTINCT tig.surname, ' ', tig.firstName, '|', IFNULL(tig.cellphone, '') SEPARATOR '\n') from t_or_insuranceitem as ti join t_or_insuranceitem_insuredInfo as tig on ti.insuranceOrderId=tig.insuranceOrderId where ti.orderItemCD = sto.orderItemCD)
+WHEN sto.orderItemType='HOTEL' THEN
+	(select GROUP_CONCAT(DISTINCT thg.lastName, ' ', thg.firstName, '|' SEPARATOR '\n') from t_or_hotelitem as th join t_or_hotelitem_customer as thg on th.hotelOrderId=thg.hotelOrderId where th.orderItemCD = sto.orderItemCD)
+WHEN sto.orderItemType='TOUR' THEN
+	(select GROUP_CONCAT(DISTINCT ttg.surname, ' ', ttg.firstName, '|', IFNULL(ttg.cellphone, '') SEPARATOR '\n') from t_or_mobileitem as tm join t_or_touritem as tt join t_or_touritem_guestInfo as ttg on tt.tourOrderId = ttg.tourOrderId where tt.orderItemCD=sto.orderItemCD)
+WHEN sto.orderItemType='VIATOR' THEN
+	(select GROUP_CONCAT(DISTINCT tvig.surname, ' ', tvig.firstName, '|', IFNULL(tvig.cellphone, '') SEPARATOR '\n') from t_or_viatoritem as tvi join t_or_viatoritem_guestInfo as tvig on tvi.orderItemId = tvig.orderItemId where tvi.orderItemCD = sto.orderItemCD)
+WHEN sto.orderItemType='VISA' THEN
+	(select GROUP_CONCAT(DISTINCT tvg.surname, ' ', tvg.firstName, '|',IFNULL(tvg.cellphone, '') SEPARATOR '\n') from t_or_visaitem as tv join t_or_visaitem_guestInfo as tvg on tvg.visaOrderId = tv.visaOrderId where tv.orderItemCD = sto.orderItemCD)
+ELSE ''
+END as guestInfo,
+(select tvg.interviewTime from t_or_visaitem as tv join t_or_visaitem_guestInfo as tvg on tvg.visaOrderId=tv.visaOrderId where tv.orderItemCD=b.orderItemCD and tvg.interviewTime is not null order by tvg.interviewTime ASC limit 1) as interviewTime,
+(SELECT 'yes' from t_or_order_tag tag where tag.orderItemCD = sto.orderItemCD AND tag.tag=12 AND tag.deleted=0 limit 1) AS xbudan
+
+from   dmp_report.t_stats_topic_order sto join t_or_baseitem b on sto.orderItemCD =b.orderItemCD
+where 1=1 and sto.testOrder =0  
+
+${if(len(订单来源)== 0,""," and sto.bookingSource = '"+ 订单来源 +"'")}
+${if(len(下单开始日期)== 0,""," and sto.createTime >= STR_TO_DATE('" + 下单开始日期 + "','%Y-%m-%d')")}
+${if(len(下单结束日期)== 0,""," and sto.createTime <= STR_TO_DATE('" + 下单结束日期 + "','%Y-%m-%d')")}
+${if(len(出行开始日期)== 0,""," and sto.departureDate >= STR_TO_DATE('" + 出行开始日期 + "','%Y-%m-%d')")}
+${if(len(出行结束日期)== 0,""," and sto.departureDate <= STR_TO_DATE('" + 出行结束日期 + "','%Y-%m-%d')")}
+
+${if(len(订单号) == 0,"","and sto.orderCD like '%" +订单号+ "%'")}
+
+${if(len(订单项号) == 0,"","and sto.orderItemCD like '%" +订单项号+ "%'")}
+
+${if(len(订单状态) == 0,"","and sto.orderStatus = '" +订单状态+ "'")}
+
+${if(len(付款状态) == 0,"","and sto.tradeStatus = '" +付款状态+ "'")}
+${if(len(订单类型) == 0,"","and sto.orderItemType = '" +订单类型+ "'")}
+
+
+${if(AND(len(姓) == 0,len(名) == 0),"","and sto.contactInfo like '%" +姓+名+ "%'")}
+${if(len(联系人手机) == 0,"","and sto.phone like '%" +联系人手机+ "%'")}
+${if(len(联系人邮箱) == 0,"","and sto.email like '%" +联系人邮箱+ "%'")}
+${if(len(产品编号) == 0,"","and sto.productBusinessId like '%" +产品编号+ "%'")}
+${if(len(供应商产品编号) == 0,"","and sto.supplierCode like '%" +供应商产品编号+ "%'")}
+${if(len(国家) == 0,"","and sto.country = '" +国家+ "'")}
+${if(len(洲) == 0,"","and b.continent = '" +洲+ "'")}
+${if(len(支付时间开始)== 0,""," and sto.payTime >= STR_TO_DATE('" + 支付时间开始 + "','%Y-%m-%d')")}
+${if(len(支付时间结束)== 0,""," and sto.payTime  <= STR_TO_DATE('" + 支付时间结束 + "','%Y-%m-%d')")}
+
+order by createTime desc,orderCD
+]]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,1143000,3352800,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,4648200,4686300,4267200,4610100,5067300,5829300,5524500,6019800,4648200,3886200,3657600,3467100,4533900,6438900,3657600,3162300,8686800,5067300,3009900,2971800,2971800,3238500,2971800,3924300,3467100,3962400,2743200,2743200,4038600,2743200,2743200,5981700,4724400,2743200,2743200,2743200,2743200,2743200,15811500,3543300,3162300,2743200,3429000,3962400,5524500,2819400,3848100,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" rs="2" s="0">
+<O>
+<![CDATA[序]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0" rs="2" s="0">
+<O>
+<![CDATA[订单号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="0" rs="2" s="0">
+<O>
+<![CDATA[成交日期]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="1"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="3" r="0" rs="2" s="0">
+<O>
+<![CDATA[出行日期]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="1"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="4" r="0" rs="2" s="0">
+<O>
+<![CDATA[完成交易日期]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="1"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="5" r="0" rs="2" s="1">
+<O>
+<![CDATA[产品编号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="0" rs="2" s="1">
+<O>
+<![CDATA[供应商产品编号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="0" rs="2" s="1">
+<O>
+<![CDATA[产品名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="0" rs="2" s="1">
+<O>
+<![CDATA[订单项号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="0" rs="2" s="1">
+<O>
+<![CDATA[订单类型]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="0" rs="2" s="0">
+<O>
+<![CDATA[订单来源]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="0" rs="2" s="0">
+<O>
+<![CDATA[预订渠道]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="0" rs="2" s="0">
+<O>
+<![CDATA[合作商]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="0" rs="2" s="0">
+<O>
+<![CDATA[联系人手机]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="0" rs="2" s="0">
+<O>
+<![CDATA[联系人邮箱]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="0" rs="2" s="0">
+<O>
+<![CDATA[联系人]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="0" rs="2" s="0">
+<O>
+<![CDATA[总人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="0" s="0">
+<O>
+<![CDATA[旅客信息]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="0" rs="2" s="0">
+<O>
+<![CDATA[面试时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="19" r="0" cs="3" s="0">
+<O>
+<![CDATA[人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="0" cs="3" s="0">
+<O>
+<![CDATA[订单金额]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="25" r="0" rs="2" s="0">
+<O>
+<![CDATA[支付方式]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="0" rs="2" s="0">
+<O>
+<![CDATA[订单状态]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="27" r="0" rs="2" s="0">
+<O>
+<![CDATA[支付状态]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="28" r="0" rs="2" s="0">
+<O>
+<![CDATA[支付时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="29" r="0" rs="2" s="0">
+<O>
+<![CDATA[交易结束时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="30" r="0" rs="2" s="0">
+<O>
+<![CDATA[国家]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="31" r="0" rs="2" s="0">
+<O>
+<![CDATA[洲]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="32" r="0" rs="2" s="0">
+<O>
+<![CDATA[供应商确认号1]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="0" rs="2" s="0">
+<O>
+<![CDATA[供应商确认号2]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="34" r="0" cs="2" s="0">
+<O>
+<![CDATA[供应总金额]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="36" r="0" rs="2" s="0">
+<O>
+<![CDATA[utmMedium]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="37" r="0" rs="2" s="0">
+<O>
+<![CDATA[utmSource]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="38" r="0" rs="2" s="0">
+<O>
+<![CDATA[utmTerm]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="39" r="0" rs="2" s="0">
+<O>
+<![CDATA[refferUrl]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="40" r="0" rs="2" s="0">
+<O>
+<![CDATA[refferHost]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="41" r="0" rs="2" s="0">
+<O>
+<![CDATA[refererTime]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="42" r="0" rs="2" s="0">
+<O>
+<![CDATA[utmTime]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="43" r="0" rs="2" s="0">
+<O>
+<![CDATA[edm]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="44" r="0" rs="2" s="0">
+<O>
+<![CDATA[ip]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="45" r="0" rs="2" s="0">
+<O>
+<![CDATA[ip地址]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="46" r="0" rs="2" s="0">
+<O>
+<![CDATA[测试单]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="47" r="0" rs="2" s="0">
+<O>
+<![CDATA[客服代下单工号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="48" r="0" rs="2" s="0">
+<O>
+<![CDATA[子预订平台]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="49" r="0" rs="2" s="0">
+<O>
+<![CDATA[用户反馈]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="50" r="0" rs="2" s="0">
+<O>
+<![CDATA[老用户]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="51" r="0" rs="2" s="0">
+<O>
+<![CDATA[签证老用户]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="52" r="0" rs="2" s="0">
+<O>
+<![CDATA[优惠券编码]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="53" r="0" rs="2" s="0">
+<O>
+<![CDATA[送签地]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="54" r="0" rs="2" s="0">
+<O>
+<![CDATA[预订平台]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="55" r="0" rs="2" s="0">
+<O>
+<![CDATA[渠道类型]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="56" r="0" rs="2" s="0">
+<O>
+<![CDATA[细分渠道名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="57" r="0" rs="2" s="0">
+<O>
+<![CDATA[是否内部下单]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="58" r="0" rs="2" s="0">
+<O>
+<![CDATA[会员id]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="59" r="0" rs="2" s="0">
+<O>
+<![CDATA[自然搜索的关键词]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="60" r="0" rs="2" s="0">
+<O>
+<![CDATA[大礼包码]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="61" r="0" rs="2" s="0">
+<O>
+<![CDATA[X补单]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="1" s="0">
+<O>
+<![CDATA[姓名|电话]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="19" r="1" s="0">
+<O>
+<![CDATA[成人]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="1" s="0">
+<O>
+<![CDATA[儿童]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="1" s="0">
+<O>
+<![CDATA[婴儿]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="1" s="0">
+<O>
+<![CDATA[人民币]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="1" s="0">
+<O>
+<![CDATA[美元]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="1" s="0">
+<O>
+<![CDATA[转换金额（CNY）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="34" r="1" s="0">
+<O>
+<![CDATA[币种]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="35" r="1" s="0">
+<O>
+<![CDATA[金额]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=seq()]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="B3"/>
+</C>
+<C c="1" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="orderCD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="createtime"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="1"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="departureDate"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="1"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="finishedDealDate"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="1"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="productBusinessId"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="supplierCode"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="producttitlecn"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="orderItemCD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="orderItemType"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="TOUR" value="团队游"/>
+<Dict key="CAR" value="租车"/>
+<Dict key="INSURANCE" value="保险"/>
+<Dict key="MOBILE" value="手机卡"/>
+<Dict key="VISA" value="签证"/>
+<Dict key="VIATOR" value="Viator"/>
+<Dict key="LOCALCAR" value="本地用车"/>
+<Dict key="HOTEL" value="酒店"/>
+<Dict key="GENRAL" value="通用型"/>
+<Dict key="CYCLE" value="循环游"/>
+<Dict key="X" value="自助游套餐"/>
+<Dict key="GPS" value="GPS"/>
+<Dict key="AIR" value="机票"/>
+<Dict key="EURAIL" value="欧铁"/>
+<Dict key="SIM" value="电话卡"/>
+<Dict key="TRAIN" value="火车票"/>
+<Dict key="WIFI" value="WiFi"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="bookingSource"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="WEB" value="网站"/>
+<Dict key="B2B" value="B2B"/>
+<Dict key="TOUCH" value="触屏版"/>
+<Dict key="IPHONE" value="iPhone"/>
+<Dict key="IPAD" value="iPad"/>
+<Dict key="ANDROID" value="安卓"/>
+<Dict key="WP " value="windows phone"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="bookingChannel"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="WEB" value="网站"/>
+<Dict key="B2B" value="B2B"/>
+<Dict key="TOUCH" value="触屏版"/>
+<Dict key="IPHONE" value="iPhone"/>
+<Dict key="IPAD" value="iPad"/>
+<Dict key="ANDROID" value="安卓"/>
+<Dict key="WP " value="windows phone"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="partnerKey"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="TMALL_BEIAOXINDIAN" value="北奥天猫店"/>
+<Dict key="QUNAR" value="去哪儿"/>
+<Dict key="TAOZAILUSHANG" value="淘在路上"/>
+<Dict key="HNAIR" value="海南航空"/>
+<Dict key="QYER" value="穷游"/>
+<Dict key="JD" value="京东"/>
+<Dict key="MAFENGWO" value="蚂蜂窝"/>
+<Dict key="LVMAMA" value="驴妈妈"/>
+<Dict key="elvxing" value="E旅行"/>
+<Dict key="ctrip" value="携程"/>
+<Dict key="TMALL_WOQUXINDIAN" value="我趣天猫店"/>
+<Dict key="youxing" value="悠行"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="phone"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="email"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="contactInfo"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="totalGuest"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="guestInfo"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="interviewTime"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="adultCount"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="childrenCount"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="babyCount"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="cnyAmount"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="usdAmount"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="referenceCNYPaidPrice"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="paymentChannel"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="ALI_PAY_INLAND" value="支付宝境内_web"/>
+<Dict key="ALI_PAY_INLAND_WAP" value="支付宝境内_wap"/>
+<Dict key="ALI_PAY_INLAND_MOBILE" value="支付宝境内_mobile"/>
+<Dict key="ALI_PAY_OVERSEA" value="支付宝境外_web"/>
+<Dict key="ALI_PAY_OVERSEA_WAP" value="支付宝境外_wap"/>
+<Dict key="ALI_PAY_OVERSEA_MOBILE" value="支付宝国外_mobile"/>
+<Dict key="CREDIT_CARD_STRIPE" value="stripe"/>
+<Dict key="PAY_PAL" value="paypal"/>
+<Dict key="REMITTANCE" value="线下汇款"/>
+<Dict key="POS" value="POS机"/>
+<Dict key="CREDIT_PAY" value="信用支付"/>
+<Dict key="CASH" value="现金支付"/>
+<Dict key="WECHAT_PAY" value="微信支付"/>
+<Dict key="REDPACKET_PAY" value="红包支付"/>
+<Dict key="CASH_ACCOUNT_PAY" value="现金账户"/>
+<Dict key="LIANLIAN_QQF" value="连连全球付"/>
+<Dict key="LIANLIAN_QQF_WAP" value="连连全球付WAP"/>
+<Dict key="TEN_PAY_INLAND" value="财付通境内_web"/>
+<Dict key="TEN_PAY_OVERSEA" value="财付通境外_web"/>
+<Dict key="TEN_PAY_MULTI" value="财付通合单支付"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="26" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="orderstatus"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="PENDING" value="新建"/>
+<Dict key="PROCESSING" value="处理中"/>
+<Dict key="CONFIRMED" value="已确认"/>
+<Dict key="CANCELLED" value="已撤销"/>
+<Dict key="CHANGED" value="已更换"/>
+<Dict key="FINISHED" value="已成交"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="27" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="paymentstatus"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="WAITING_TO_PAY" value="等待支付"/>
+<Dict key="SUCCESS" value="支付成功"/>
+<Dict key="NEED_CHECK" value="交易待查"/>
+<Dict key="PROCESSING" value="交易处理中"/>
+<Dict key="FAILED" value="支付失败"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="28" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="lastCallBackTime"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="finishedDealDate"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="30" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="country"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="usa" value="美国"/>
+<Dict key="canada" value="加拿大"/>
+<Dict key="australia" value="澳大利亚"/>
+<Dict key="new_zealand" value="新西兰"/>
+<Dict key="china" value="中国"/>
+<Dict key="fiji" value="斐济"/>
+<Dict key="germany" value="德国"/>
+<Dict key="netherlands" value="荷兰"/>
+<Dict key="france" value="法国"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="continent"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="north_america" value="北美"/>
+<Dict key="oceania" value="澳新"/>
+<Dict key="europe" value="欧洲"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="32" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="supplierConfirmCode"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="supplierConfirmCodeEx1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="34" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="supplierCurrency"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="supplierTotalPrice"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="36" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="utmMedium"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="usa" value="美国"/>
+<Dict key="canada" value="加拿大"/>
+<Dict key="australia" value="澳大利亚"/>
+<Dict key="new_zealand" value="新西兰"/>
+<Dict key="china" value="中国"/>
+<Dict key="fiji" value="斐济"/>
+<Dict key="germany" value="德国"/>
+<Dict key="netherlands" value="荷兰"/>
+<Dict key="france" value="法国"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="37" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="utmSource"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="usa" value="美国"/>
+<Dict key="canada" value="加拿大"/>
+<Dict key="australia" value="澳大利亚"/>
+<Dict key="new_zealand" value="新西兰"/>
+<Dict key="china" value="中国"/>
+<Dict key="fiji" value="斐济"/>
+<Dict key="germany" value="德国"/>
+<Dict key="netherlands" value="荷兰"/>
+<Dict key="france" value="法国"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="38" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="utmTerm"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="usa" value="美国"/>
+<Dict key="canada" value="加拿大"/>
+<Dict key="australia" value="澳大利亚"/>
+<Dict key="new_zealand" value="新西兰"/>
+<Dict key="china" value="中国"/>
+<Dict key="fiji" value="斐济"/>
+<Dict key="germany" value="德国"/>
+<Dict key="netherlands" value="荷兰"/>
+<Dict key="france" value="法国"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="39" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="refferUrl"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="usa" value="美国"/>
+<Dict key="canada" value="加拿大"/>
+<Dict key="australia" value="澳大利亚"/>
+<Dict key="new_zealand" value="新西兰"/>
+<Dict key="china" value="中国"/>
+<Dict key="fiji" value="斐济"/>
+<Dict key="germany" value="德国"/>
+<Dict key="netherlands" value="荷兰"/>
+<Dict key="france" value="法国"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="40" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="refererHost"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="usa" value="美国"/>
+<Dict key="canada" value="加拿大"/>
+<Dict key="australia" value="澳大利亚"/>
+<Dict key="new_zealand" value="新西兰"/>
+<Dict key="china" value="中国"/>
+<Dict key="fiji" value="斐济"/>
+<Dict key="germany" value="德国"/>
+<Dict key="netherlands" value="荷兰"/>
+<Dict key="france" value="法国"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="41" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="refererTime"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="1"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr/>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="42" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="utmTime"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr/>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="43" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="edm"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="usa" value="美国"/>
+<Dict key="canada" value="加拿大"/>
+<Dict key="australia" value="澳大利亚"/>
+<Dict key="new_zealand" value="新西兰"/>
+<Dict key="china" value="中国"/>
+<Dict key="fiji" value="斐济"/>
+<Dict key="germany" value="德国"/>
+<Dict key="netherlands" value="荷兰"/>
+<Dict key="france" value="法国"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="44" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="clientIp"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr/>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="45" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="ipLocation"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="46" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="testOrder"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="是"/>
+<Dict key="0" value="否"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="47" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="principalNo"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="48" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="subSource"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="49" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="userFeedback"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="50" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="regularCustomer"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="是"/>
+<Dict key="0" value="否"/>
+<Dict key="false" value="否"/>
+<Dict key="true" value="是"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="51" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="visaRegularCustomer"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="是"/>
+<Dict key="0" value="否"/>
+<Dict key="true" value="是"/>
+<Dict key="false" value="否"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<CellInsertPolicy/>
+<Expand dir="0"/>
+</C>
+<C c="52" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="couponCodes"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="53" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="visaSignTo"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="PEK" value="北京"/>
+<Dict key="SHA" value="上海"/>
+<Dict key="CAN" value="广州"/>
+<Dict key="CTU" value="成都"/>
+<Dict key="SHE" value="沈阳"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="54" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="resultBookingPlatform"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="55" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="resultBookingChannelType"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="56" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="resultBookingSource"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="57" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="isInternalBooking"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="58" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="userId"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="59" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="searchKeyword"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="60" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="projectCodes"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="61" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="orderitemUnion" columnName="xbudan"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="19" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="25" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="27" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="28" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="30" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="36" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="37" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="38" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="39" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="40" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="43" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="5">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="5">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="5">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="7">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="7">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="7">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="9">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting orientation="1">
+<PaperSize width="101808000" height="230400000"/>
+<Margin top="986400" left="720000" bottom="986400" right="720000"/>
+</PaperSetting>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="1" left="1" bottom="1" right="1"/>
+<Border>
+<border style="0" color="-723724" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1118482"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="Search"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+</InnerWidget>
+<BoundsAttr x="728" y="238" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label下单开始日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[下单开始日期:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="50" y="25" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="下单开始日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[下单开始日期不能为空]]></EMSG>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=DATEDELTA(NOW(),-1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="130" y="25" width="139" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label下单结束日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[下单结束日期:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="331" y="25" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="下单结束日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[下单结束日期不能为空]]></EMSG>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=NOW()]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="411" y="25" width="128" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label出行开始日期_c"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[出行开始日期:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="50" y="55" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="出行开始日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[出行开始日期不能为空]]></EMSG>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="130" y="55" width="139" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label出行结束日期_c"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[出行结束日期:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="331" y="55" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="出行结束日期"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[下单结束日期不能为空]]></EMSG>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="411" y="55" width="128" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label订单号_c_c"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[订单号:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="50" y="86" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="订单号"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="130" y="86" width="139" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label订单项号"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[订单项号:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="331" y="86" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="订单项号"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="411" y="86" width="128" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label订单状态"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[订单状态:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="50" y="117" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="订单状态"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="PENDING" value="新建"/>
+<Dict key="PROCESSING" value="处理中"/>
+<Dict key="CONFIRMED" value="已确认"/>
+<Dict key="CANCELLED" value="已撤销"/>
+<Dict key="CHANGED" value="已更换"/>
+<Dict key="FINISHED" value="已成交"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="130" y="117" width="139" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label付款状态"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[付款状态:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="331" y="117" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="付款状态"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="WAITING_TO_PAY" value="等待支付"/>
+<Dict key="SUCCESS" value="支付成功"/>
+<Dict key="NEED_CHECK" value="交易待查"/>
+<Dict key="PROCESSING" value="交易处理中"/>
+<Dict key="FAILED" value="支付失败"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="411" y="117" width="128" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label订单类型"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[订单类型:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="604" y="117" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="订单类型"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="TOUR" value="团队游"/>
+<Dict key="CAR" value="租车"/>
+<Dict key="HOTEL" value="酒店"/>
+<Dict key="INSURANCE" value="保险"/>
+<Dict key="MOBILE" value="电话卡"/>
+<Dict key="LOCALCAR" value="本地用车"/>
+<Dict key="VIATOR" value="个性玩法"/>
+<Dict key="VISA" value="签证"/>
+<Dict key="GENERAL" value="通用"/>
+<Dict key="WIFI" value="WIFI"/>
+<Dict key="EURAIL" value="欧铁"/>
+<Dict key="AIR" value="机票"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="684" y="117" width="133" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label联系人姓"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[联系人 姓：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="51" y="151" width="79" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label名"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[名:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="186" y="151" width="21" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="姓"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="130" y="151" width="56" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="名"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="207" y="151" width="62" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label联系人手机"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[联系人手机:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="331" y="151" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="联系人手机"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="411" y="151" width="128" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label联系人邮箱"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[联系人邮箱:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="604" y="151" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="联系人邮箱"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="684" y="151" width="133" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label1"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[订单来源]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="604" y="86" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="订单来源"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<DirectEdit>
+<![CDATA[false]]></DirectEdit>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="WEB" value="网站"/>
+<Dict key="B2B" value="B2B"/>
+<Dict key="TOUCH" value="触屏版"/>
+<Dict key="IPHONE" value="iPhone"/>
+<Dict key="IPAD" value="iPad"/>
+<Dict key="ANDROID" value="安卓"/>
+<Dict key="WP" value="windows phone"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="684" y="86" width="133" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="国家"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="usa" value="美国"/>
+<Dict key="canada" value="加拿大"/>
+<Dict key="australia" value="澳大利亚"/>
+<Dict key="new_zealand" value="新西兰"/>
+<Dict key="china" value="中国"/>
+<Dict key="fiji" value="斐济"/>
+<Dict key="germany" value="德国"/>
+<Dict key="netherlands" value="荷兰"/>
+<Dict key="france" value="法国"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="684" y="55" width="133" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelp1"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[国家:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="604" y="55" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[当前汇率默认：6.1767]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="604" y="19" width="213" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="产品编号1"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[产品编号:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="50" y="191" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="产品编号"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="130" y="191" width="128" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="产品编号1_c"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[供应商产品编号:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="315" y="191" width="96" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="供应商产品编号"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="411" y="191" width="128" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label出行开始日期_c_c"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[支付时间开始:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="51" y="230" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="支付时间开始"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[出行开始日期不能为空]]></EMSG>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="130" y="230" width="139" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label出行结束日期_c_c"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[支付时间结束:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="331" y="230" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="支付时间结束"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[下单结束日期不能为空]]></EMSG>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="411" y="230" width="128" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Label洲"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[洲:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="604" y="191" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="洲"/>
+<WidgetAttr>
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="north_america" value="美国"/>
+<Dict key="oceania" value="澳新"/>
+<Dict key="europe" value="欧洲"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="684" y="191" width="133" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<Display display="true"/>
+<DelayDisplayContent delay="true"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<MobileWidgetList/>
+<WidgetNameTagMap/>
+</Layout>
+<DesignAttr width="960" height="414"/>
+</ParameterUI>
+<Parameter>
+<Attributes name="p1"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p2"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+</WorkBook>
